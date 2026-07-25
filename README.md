@@ -172,17 +172,27 @@ The frontend will run on `http://localhost:5173`.
 
 ---
 
-## Deployment Guide
+## Deployment (Live URLs)
 
-### Frontend Deployment (Vercel)
-1. Import `client/` folder or repository root into Vercel.
-2. Set Build Command: `npm run build` and Output Directory: `dist`.
-3. Set Environment Variable: `VITE_API_URL=https://<your-render-backend-url>/api`.
+- **Frontend (React/Vite):** [https://leaddeskmini-frontend-jkon.onrender.com](https://leaddeskmini-frontend-jkon.onrender.com)
+- **Backend (Express API):** [https://leaddeskmini-6vwr.onrender.com](https://leaddeskmini-6vwr.onrender.com)
+
+### Frontend Deployment (Render)
+1. Import `client/` folder or repository root into Render as a Static Site.
+2. Set Build Command: `npm run build` and Publish Directory: `dist`.
+3. Set Environment Variable: `VITE_API_URL=https://leaddeskmini-6vwr.onrender.com/api`.
+4. **Important:** Vite bakes env vars at build time — trigger a new deploy after changing `VITE_API_URL`.
 
 ### Backend Deployment (Render)
 1. Deploy `server/` as a Render Web Service.
 2. Set Build Command: `npm install` and Start Command: `npm start`.
-3. Set Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `CLIENT_URL=https://<your-vercel-app>.vercel.app`.
+3. Set Environment Variables:
+   - `MONGODB_URI` (your MongoDB Atlas connection string)
+   - `JWT_SECRET` (a strong random secret)
+   - `NODE_ENV=production`
+   - `CLIENT_URL=https://leaddeskmini-frontend-jkon.onrender.com`
+   - `ADMIN_EMAIL=admin@leaddesk.com`
+   - `ADMIN_PASSWORD=Admin@123456`
 
 ---
 
