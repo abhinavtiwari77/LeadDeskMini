@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
 const ApiError = require('../utils/ApiError');
 const asyncWrapper = require('../utils/asyncWrapper');
@@ -45,22 +46,45 @@ const logout = asyncWrapper(async (req, res) => {
 
 // @desc    Get current authenticated admin
 // @route   GET /api/auth/me
-// @access  Private
+// @access  Public (returns success: false if not authenticated, no 401)
 const getMe = asyncWrapper(async (req, res) => {
-  const admin = await Admin.findById(req.admin.id);
+  let token;
 
-  if (!admin) {
-    throw new ApiError(404, 'Admin profile not found');
+  if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  } else if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
   }
 
-  res.status(200).json({
-    success: true,
-    data: {
-      id: admin._id,
-      email: admin.email,
-      createdAt: admin.createdAt,
-    },
-  });
+  if (!token) {
+    return res.status(200).json({ success: false });
+  }
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'fallback_secret'
+    );
+    const admin = await Admin.findById(decoded.id);
+
+    if (!admin) {
+      return res.status(200).json({ success: false });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: admin._id,
+        email: admin.email,
+        createdAt: admin.createdAt,
+      },
+    });
+  } catch (error) {
+    return res.status(200).json({ success: false });
+  }
 });
 
 module.exports = {

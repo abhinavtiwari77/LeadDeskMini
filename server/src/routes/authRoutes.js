@@ -7,6 +7,6 @@ const { loginSchema } = require('../utils/validationSchemas');
 
 router.post('/login', validate(loginSchema), login);
 router.post('/logout', protect, logout);
-router.get('/me', protect, getMe);
+router.get('/me', getMe);
 
 module.exports = router;
