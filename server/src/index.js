@@ -14,6 +14,9 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+// Trust Render's proxy so req.secure reflects HTTPS behind the proxy
+app.set('trust proxy', 1);
+
 // Connect Database
 connectDB();
 
@@ -27,12 +30,17 @@ const allowedOrigins = [
   'http://127.0.0.1:5173',
 ];
 
+// In production, explicitly allow the production frontend URL (Render)
+// even if CLIENT_URL env var is accidentally omitted.
+if (process.env.NODE_ENV === 'production') {
+  allowedOrigins.push('https://leaddeskmini-frontend-jkon.onrender.com');
+}
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps, curl, postman)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      if (allowedOrigins.indexOf(origin) !== -1) {
         return callback(null, true);
       }
       return callback(new Error('CORS Policy restriction'), false);

@@ -9,13 +9,17 @@ const generateToken = (id) => {
 const sendTokenResponse = (admin, statusCode, res, message = 'Success') => {
   const token = generateToken(admin._id);
 
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Determine if the connection is secure (HTTPS behind proxy)
+  const isSecure =
+    res.req.secure || res.req.headers['x-forwarded-proto'] === 'https';
 
+  // onrender.com subdomains are cross-site (onrender.com is on the PSL),
+  // so the cookie MUST use SameSite=None + Secure for cross-site requests.
   const cookieOptions = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     httpOnly: true,
-    secure: isProduction, // HTTPS in production
-    sameSite: isProduction ? 'none' : 'lax', // cross-site allowed in prod if cross-domain
+    secure: isSecure,
+    sameSite: isSecure ? 'none' : 'lax',
   };
 
   res

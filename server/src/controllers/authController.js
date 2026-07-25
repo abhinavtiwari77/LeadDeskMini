@@ -30,12 +30,13 @@ const login = asyncWrapper(async (req, res) => {
 // @route   POST /api/auth/logout
 // @access  Private
 const logout = asyncWrapper(async (req, res) => {
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isSecure =
+    req.secure || req.headers['x-forwarded-proto'] === 'https';
   res.cookie('token', '', {
     httpOnly: true,
     expires: new Date(0),
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: isSecure,
+    sameSite: isSecure ? 'none' : 'lax',
   });
 
   res.status(200).json({
